@@ -4,118 +4,85 @@ program using Kruskal’s Algorithm to output a connection with minimum cost. Tr
 algorithm. Find its time complexity.
 */
 #include <stdio.h>
-#include<stdlib.h>
-#define MAX 30
-
-typedef struct edge
+int p[10];
+int parent(int x)
 {
-    int u, v, w;
-} edge;
-
-typedef struct edge_list 
+    while(x!=p[x])
+    {
+        x=p[x];
+    }
+    return x;
+}
+void kruskal(int graph[10][10],int n)
 {
-    edge data[MAX];
-    int n;
-} edge_list;
-
-edge_list elist;
-edge_list spanlist;
-
-void kruskalAlgo();
-int find(int belongs[], int vertexno);
-void applyUnion(int belongs[], int c1, int c2, int n);
-void sort();
-void print();
-
-// Applying Krushkal Algo
-void kruskalAlgo(int **graph,int numVert)
-{
-    int belongs[numVert], i, j, cno1, cno2;
-    elist.n = 0;
-    int n = numVert;
-    for (i = 1; i < n; i++)
-        for (j = 0; j < i; j++) 
+    int u,v;
+    for(int i=0;i<n;i++)    p[i]=i;
+    int ne=0;
+    int sum=0;
+    while(ne<n-1)
+    {
+        int min= 999;
+        for(int i=0;i<n;i++)
         {
-            if (graph[i][j] != 0) 
+            for(int j=0;j<n;j++)
             {
-                elist.data[elist.n].u = i;
-                elist.data[elist.n].v = j;
-                elist.data[elist.n].w = graph[i][j];
-                elist.n++;
+                if(graph[i][j]<min)
+                {
+                    min=graph[i][j];
+                    u=i;
+                    v=j;
+                }
             }
         }
-    sort();
-    for (i = 0; i < n; i++)
-        belongs[i] = i;
-        spanlist.n = 0;
-    for (i = 0; i < elist.n; i++) 
-    {
-        cno1 = find(belongs, elist.data[i].u);
-        cno2 = find(belongs, elist.data[i].v);
-        if (cno1 != cno2) 
+        if(parent(u)!=parent(v))
         {
-            spanlist.data[spanlist.n] = elist.data[i];
-            spanlist.n = spanlist.n + 1;
-            applyUnion(belongs, cno1, cno2,n);
+            printf("connect %d----->%d=%d\n",u,v,graph[u][v]);
+            sum=sum+graph[u][v];
+            p[v]=u;
+            ne++;
         }
+        graph[u][v]=999;
+        graph[v][u]=999;        
+        
+        
     }
+    printf("mst cost=%d",sum);
 }
 
-int find(int belongs[], int vertexno) 
+int main()
 {
-    return (belongs[vertexno]);
-}
-
-void applyUnion(int belongs[], int c1, int c2, int n) 
-{
-    int i;
-    for (i = 0; i < n; i++)
-        if (belongs[i] == c2)
-            belongs[i] = c1;
-}
-
-// Sorting algo
-void sort() 
-{
-    int i, j;
-    edge temp;
-    for (i = 1; i < elist.n; i++)
-        for (j = 0; j < elist.n - 1; j++)
-            if (elist.data[j].w > elist.data[j + 1].w)  
-            {
-                temp = elist.data[j];
-                elist.data[j] = elist.data[j + 1];
-                elist.data[j + 1] = temp;
-            }
-}
-// Printing the result
-void print() 
-{
-    int i, cost = 0;
-    for (i = 0; i < spanlist.n; i++) 
+    int graph[10][10],n,source;
+    printf("Enter number of node=");
+    scanf("%d",&n);
+    printf("\n Enter weighted graph\n");
+    for(int i=0;i<n;i++)
     {
-        printf("\n%d - %d : %d", spanlist.data[i].u, spanlist.data[i].v, spanlist.data[i].w);
-        cost = cost + spanlist.data[i].w;
-    }
-    printf("\nSpanning tree cost: %d", cost);
-}
-
-int main() 
-{
-    int i, j, numVert;
-    int **graph;
-    printf("Enter the number of vertices : ");
-    scanf("%d",&numVert);
-    graph = (int**) malloc((numVert*numVert)*sizeof(int) );
-    printf("Enter the adjacency matrix :-\n");
-    for(i=0;i<numVert;i++)
-    {
-        graph[i]=(int *)malloc(numVert * sizeof(int));
-    }
-    //read
-    for (i=0; i<numVert; i++)
-        for (j=0; j<numVert; j++)
+        for(int j=0;j<n;j++)
+        {
             scanf("%d",&graph[i][j]);
-    kruskalAlgo(graph,numVert);
-    print();
+        }
+    }
+    printf("-----------Minimum Spanning Tree-----------");
+    kruskal(graph,n);
+
+    return 0;
 }
+
+
+OUTPUT:
+Enter number of node=6
+
+ Enter weighted graph
+0 30 40 999 999 999
+30 0 50 10 999 999
+40 50 0 999 20 999
+999 10 999 0 60 80
+999 999 20 60 0 70
+999 999 999 80 70 0
+..................Minimum Spanning Treee.....................
+connect 1----->3=10
+connect 2----->4=20
+connect 0----->1=30
+connect 0----->2=40
+connect 4----->5=70
+mst cost=170
